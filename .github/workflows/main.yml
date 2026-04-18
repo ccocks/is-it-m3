@@ -10,13 +10,16 @@ jobs:
     steps:
       - name: Enable VNC
         run: |
+          sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.screensharing.plist || true
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
           -activate \
           -configure \
           -access -on \
-          -clientopts -setvnclegacy -vnclegacy yes \
-          -clientopts -setvncpw -vncpw "password" \
-          -restart -agent     
+          -restart \
+          -agent \
+          -privs -all 
+          sudo launchctl kickstart -k system/com.apple.screensharing
+          lsof -iTCP:5900 -sTCP:LISTEN
 
       - name: Install noVNC
         run: |
