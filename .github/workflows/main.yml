@@ -2,7 +2,7 @@ name: Detect M3 Chip
 on: [push, workflow_dispatch]
 jobs:
   detect-chip:
-    runs-on: macos-15
+    runs-on: macos-15-xlarge
     steps:
       - name: Get CPU Info
         run: sysctl -n machdep.cpu.brand_string
