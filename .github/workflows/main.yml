@@ -14,9 +14,9 @@ jobs:
           -activate \
           -configure \
           -access -on \
-          -clientopts -setvnclegacy -vnclegacy yes \
-          -clientopts -setvncpw -vncpw "hunter2" \
-          -restart -agent
+          -configure -allowAccessFor -allUsers \
+          -configure -restart -agent \
+          -privs -all   
 
       - name: Install noVNC
         run: |
