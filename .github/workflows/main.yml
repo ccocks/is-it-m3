@@ -20,6 +20,7 @@ jobs:
 
       - name: Install noVNC
         run: |
+          lsof -i :5900 || echo "no vnc server on 5900"
           git clone https://github.com/novnc/noVNC.git
           git clone https://github.com/novnc/websockify.git noVNC/utils/websockify
 
