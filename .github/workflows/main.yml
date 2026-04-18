@@ -11,7 +11,12 @@ jobs:
       - name: Enable VNC
         run: |
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
-            -activate -configure -access -on -restart -agent
+          -activate \
+          -configure \
+          -access -on \
+          -clientopts -setvnclegacy -vnclegacy yes \
+          -clientopts -setvncpw -vncpw "hunter2" \
+          -restart -agent
 
       - name: Install noVNC
         run: |
