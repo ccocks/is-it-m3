@@ -1,29 +1,31 @@
-name: macos-vnc
+name: mac-novnc
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
 
 jobs:
-  vnc:
+  mac:
     runs-on: macos-latest
-    steps:
-      - name: Set password
-        run: |
-          PASSWORD="hunter2"
-          echo "$PASSWORD" | vncpasswd -f > ~/.vnc/passwd
-          chmod 600 ~/.vnc/passwd
 
-      - name: Start VNC server
+    steps:
+      - name: Enable VNC
         run: |
-          /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
-            -activate -configure -access -on \
-            -clientopts -setvnclegacy -vnclegacy yes \
-            -clientopts -setvncpw -vncpw "hunter2" \
-            -restart -agent -privs -all
+          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+            -activate -configure -access -on -restart -agent
+
+      - name: Install noVNC
+        run: |
+          git clone https://github.com/novnc/noVNC.git
+          git clone https://github.com/novnc/websockify.git noVNC/utils/websockify
+
+      - name: Start noVNC
+        run: |
+          cd noVNC
+          nohup ./utils/novnc_proxy --vnc localhost:5900 --listen 6080 &
 
       - name: Install cloudflared
-        run: |
-          brew install cloudflared
+        run: brew install cloudflared
 
-      - name: Start tunnel
+      - name: Expose web UI
         run: |
-          cloudflared tunnel --url tcp://localhost:5900
+          cloudflared tunnel --url http://localhost:6080
