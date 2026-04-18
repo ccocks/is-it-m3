@@ -1,21 +1,29 @@
-name: Detect M3 Chip
-on: [push, workflow_dispatch]
+name: macos-vnc
+
+on: workflow_dispatch
+
 jobs:
-  detect-chip:
-    runs-on: macos-15-xlarge
+  vnc:
+    runs-on: macos-latest
     steps:
-      - name: Get CPU Info
-        run: sysctl -n machdep.cpu.brand_string
-      - name: Check for Apple Silicon
+      - name: Set password
         run: |
-          cpu=$(sysctl -n machdep.cpu.brand_string)
-          if [[ "$cpu" == *"Apple"* ]]; then
-            echo "✅ Running on Apple Silicon: $cpu"
-            # Optional: fail if not M3 specifically
-            if [[ "$cpu" != *"Apple M3"* ]]; then
-              echo "⚠️  Not an M3 chip (this is fine for Apple Silicon tests)"
-            fi
-          else
-            echo "❌ Not running on Apple Silicon"
-            exit 1
-          fi   
+          PASSWORD="hunter2"
+          echo "$PASSWORD" | vncpasswd -f > ~/.vnc/passwd
+          chmod 600 ~/.vnc/passwd
+
+      - name: Start VNC server
+        run: |
+          /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+            -activate -configure -access -on \
+            -clientopts -setvnclegacy -vnclegacy yes \
+            -clientopts -setvncpw -vncpw "hunter2" \
+            -restart -agent -privs -all
+
+      - name: Install cloudflared
+        run: |
+          brew install cloudflared
+
+      - name: Start tunnel
+        run: |
+          cloudflared tunnel --url tcp://localhost:5900
