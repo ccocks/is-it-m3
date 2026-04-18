@@ -19,6 +19,8 @@ jobs:
           -agent \
           -privs -all 
           sudo launchctl kickstart -k system/com.apple.screensharing
+          sudo sqlite3 /Library/Application\ Support/com.apple.TCC/TCC.db \
+          "INSERT OR REPLACE INTO access VALUES('kTCCServiceScreenCapture','noVNC',0,1,1,NULL,NULL,NULL,'UNUSED',NULL,0,1541440109);"
           lsof -iTCP:5900 -sTCP:LISTEN
 
       - name: Install noVNC
