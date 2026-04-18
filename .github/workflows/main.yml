@@ -1,0 +1,21 @@
+name: Detect M3 Chip
+on: [push, workflow_dispatch]
+jobs:
+  detect-chip:
+    runs-on: macos-15
+    steps:
+      - name: Get CPU Info
+        run: sysctl -n machdep.cpu.brand_string
+      - name: Check for Apple Silicon
+        run: |
+          cpu=$(sysctl -n machdep.cpu.brand_string)
+          if [[ "$cpu" == *"Apple"* ]]; then
+            echo "✅ Running on Apple Silicon: $cpu"
+            # Optional: fail if not M3 specifically
+            if [[ "$cpu" != *"Apple M3"* ]]; then
+              echo "⚠️  Not an M3 chip (this is fine for Apple Silicon tests)"
+            fi
+          else
+            echo "❌ Not running on Apple Silicon"
+            exit 1
+          fi   
